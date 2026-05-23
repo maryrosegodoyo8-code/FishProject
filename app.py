@@ -3,9 +3,18 @@ from ultralytics import YOLO
 from PIL import Image
 import numpy as np
 import os
+from pathlib import Path
 
 # --- CONFIGURATION ---
-MODEL_PATH = r"runs\detect\fish_detector\weights\best.pt"
+# Use forward slashes (cross-platform compatible)
+MODEL_PATH = "runs/detect/fish_detector/weights/best.pt"
+
+# Verify the model exists
+if not os.path.exists(MODEL_PATH):
+    # Try alternative path if running from different directory
+    alt_path = Path(__file__).parent / MODEL_PATH
+    if alt_path.exists():
+        MODEL_PATH = str(alt_path)
 
 # --- PAGE SETUP ---
 st.set_page_config(page_title="Fish Detection App", layout="wide")
@@ -42,7 +51,6 @@ if model:
 
         with col1:
             st.header("Original Image")
-            # Using fixed width of 400 pixels
             st.image(image, width=400)
 
         # 3. Run Prediction
@@ -52,12 +60,7 @@ if model:
         # 4. Display Results
         with col2:
             st.header("Detection Result")
-            
-            # FIX: Removed 'color' argument as it is not supported in this version
-            # line_width=2 makes the boxes thicker
             annotated_image = results[0].plot(line_width=2)
-            
-            # Using fixed width of 400 pixels
             st.image(annotated_image, channels="BGR", width=400)
 
         # 5. Details
